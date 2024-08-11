@@ -43,7 +43,11 @@ public class Student {
     private Set<Course> courses;
 
     public Student(){};
-
+    public Student(String email, String name, String password) {
+        this.email = email;
+        this.name = name;
+        this.password = password;
+    }
     public Student(Set<Course> courses, String email, String name, String password) {
         this.courses = courses;
         this.email = email;
