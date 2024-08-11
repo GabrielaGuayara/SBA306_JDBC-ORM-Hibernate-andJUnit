@@ -1,13 +1,10 @@
 package sba.sms.services;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.TypedQuery;
+
 import lombok.extern.java.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import sba.sms.dao.StudentI;
 import sba.sms.models.Course;
@@ -35,7 +32,7 @@ public class StudentService implements StudentI {
         try {
             transaction = session.beginTransaction();
             String hq1 = "FROM Student";
-            TypedQuery<Student> query = session.createQuery(hq1, Student.class);
+            Query<Student> query = session.createQuery(hq1, Student.class);
             students = query.getResultList();
             transaction.commit();
             log.info("Students retrieved successfully");
@@ -106,7 +103,7 @@ public class StudentService implements StudentI {
         try {
             transaction = session.beginTransaction();
             String hq3 = "FROM Student WHERE email = :email AND password = :password";
-            TypedQuery<Student> query = session.createQuery(hq3, Student.class);
+            Query<Student> query = session.createQuery(hq3, Student.class);
             query.setParameter("email", email);
             query.setParameter("password", password);
             transaction.commit();
