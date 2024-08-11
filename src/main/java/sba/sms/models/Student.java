@@ -17,10 +17,12 @@ import java.util.Set;
  * Implement Lombok annotations to eliminate boilerplate code.
  */
 import jakarta.persistence.*;
-
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @Entity
 @Table(name = "student")
-
 
 public class Student {
     @Column(name = "email", unique = true, length = 50)
