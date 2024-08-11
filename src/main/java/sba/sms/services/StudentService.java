@@ -21,6 +21,36 @@ import java.util.List;
  * generate a logger file.
  */
 
-public class StudentService {
+public class StudentService implements StudentI{
 
+
+    @Override
+    public List<Student> getAllStudents() {
+        return List.of();
+    }
+
+    @Override
+    public void createStudent(Student student) {
+
+    }
+
+    @Override
+    public Student getStudentByEmail(String email) {
+        return null;
+    }
+
+    @Override
+    public boolean validateStudent(String email, String password) {
+        return false;
+    }
+
+    @Override
+    public void registerStudentToCourse(String email, int courseId) {
+
+    }
+
+    @Override
+    public List<Course> getStudentCourses(String email) {
+        return List.of();
+    }
 }

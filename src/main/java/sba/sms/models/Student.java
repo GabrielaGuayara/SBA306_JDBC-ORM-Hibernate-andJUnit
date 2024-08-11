@@ -23,7 +23,7 @@ import jakarta.persistence.*;
 
 
 public class Student {
-    @Column(name = "email", length = 50, unique = true)
+    @Column(name = "email", unique = true, length = 50)
     @Id
     private String email;
 

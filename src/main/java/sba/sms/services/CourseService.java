@@ -16,6 +16,21 @@ import java.util.List;
  * CourseI interface, overrides all abstract service methods and
  * provides implementation for each method.
  */
-public class CourseService {
+public class CourseService implements CourseI {
 
+
+    @Override
+    public void createCourse(Course course) {
+
+    }
+
+    @Override
+    public List<Course> getAllCourses() {
+        return List.of();
+    }
+
+    @Override
+    public Course getCourseById(int courseId) {
+        return null;
+    }
 }
