@@ -46,11 +46,38 @@ public class CourseService implements CourseI {
 
     @Override
     public List<Course> getAllCourses() {
-        return List.of();
+        EntityTransaction transaction = entityManager.getTransaction();
+        try{
+            transaction.begin();
+            List<Course> courses = entityManager.createQuery("SELECT * from Course", Course.class).getResultList();
+            transaction.commit();
+            System.out.println("Course retrieved successfully");
+            return courses;
+        }catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            System.out.println("Error retrieving course: " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve course", e);
+        }
     }
 
     @Override
     public Course getCourseById(int courseId) {
-        return null;
+        EntityTransaction transaction = entityManager.getTransaction();
+        try{
+            transaction.begin();
+            Course course = entityManager.find(Course.class, courseId);
+            transaction.commit();
+            System.out.println("Course retrieved successfully");
+            return course;
+        }catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+
+            System.out.println("Error retrieving course: " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve course", e);
+        }
     }
 }
