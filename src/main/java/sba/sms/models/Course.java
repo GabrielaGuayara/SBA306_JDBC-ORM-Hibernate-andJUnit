@@ -37,12 +37,15 @@ public class Course {
     @Column(name = "students")
     private Set<Student> students;
 
+    //No arguments constructor
     public Course(){};
-    public Course(int id, String instructor, String name) {
-        this.id = id;
+
+    //Required arguments constructor
+    public Course(String instructor, String name) {
         this.instructor = instructor;
         this.name = name;
     }
+    //All arguments constructor
     public Course(int id, String instructor, String name, Set<Student> students) {
         this.id = id;
         this.instructor = instructor;
