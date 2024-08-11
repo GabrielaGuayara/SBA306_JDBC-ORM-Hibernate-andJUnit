@@ -38,6 +38,11 @@ public class Course {
     private Set<Student> students;
 
     public Course(){};
+    public Course(int id, String instructor, String name) {
+        this.id = id;
+        this.instructor = instructor;
+        this.name = name;
+    }
     public Course(int id, String instructor, String name, Set<Student> students) {
         this.id = id;
         this.instructor = instructor;
