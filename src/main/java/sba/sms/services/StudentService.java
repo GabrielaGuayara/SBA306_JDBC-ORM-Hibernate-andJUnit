@@ -42,6 +42,8 @@ public class StudentService implements StudentI {
                 System.out.println(e.getMessage());
             }
             System.out.println(e.getMessage());
+        }finally {
+            session.close();
         }
     }
 
@@ -54,13 +56,15 @@ public class StudentService implements StudentI {
             session = factory.openSession();
             transaction = session.beginTransaction();
             student = session.get(Student.class, email);
-
+            transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
                 System.out.println(e.getMessage());
             }
             System.out.println(e.getMessage());
+        }finally {
+            session.close();
         }
         return student;
     }
@@ -90,6 +94,8 @@ public class StudentService implements StudentI {
                 System.out.println(e.getMessage());
             }
             System.out.println(e.getMessage());
+        }finally {
+            session.close();
         }
 
         return false;
@@ -155,6 +161,8 @@ public class StudentService implements StudentI {
                 transaction.rollback();
             }
             System.out.println(e.getMessage());
+        }finally {
+            session.close();
         }
     }
 
