@@ -14,4 +14,6 @@ public interface CourseI {
     List<Course> getAllCourses();
 
     Course getCourseById(int courseId);
+
+    Object getId();
 }
