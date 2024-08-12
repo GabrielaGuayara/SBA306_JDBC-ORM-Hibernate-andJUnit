@@ -1,14 +1,12 @@
 package sba.sms.services;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityTransaction;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
+import org.hibernate.cfg.Configuration;
+import jakarta.persistence.TypedQuery;
+import org.hibernate.SessionFactory;
 import sba.sms.dao.CourseI;
 import sba.sms.models.Course;
-import sba.sms.utils.HibernateUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,65 +17,75 @@ import java.util.List;
  * provides implementation for each method.
  */
 public class CourseService implements CourseI {
-    private EntityManager entityManager;
 
-    public CourseService(){}
-    public CourseService(EntityManager entityManager){
-        this.entityManager = entityManager;
-    }
+    SessionFactory factory = new Configuration().configure().buildSessionFactory();
+    Session session = null;
 
-    @Override
     public void createCourse(Course course) {
-        EntityTransaction transaction = entityManager.getTransaction();
-        try{
-            transaction.begin();
-            entityManager.persist(course);
+        Transaction transaction = null;
+
+        try {
+            session = factory.openSession();
+            transaction = session.beginTransaction();
+
+            // Utilize persist to save course in our database
+            session.persist(course);
             transaction.commit();
-            System.out.println("Course created successfully");
-        }catch (Exception e) {
-            if (transaction.isActive()) {
+        } catch (Exception e) {
+            if (transaction != null) {
                 transaction.rollback();
             }
-
-            System.out.println("Error creating course: " + e.getMessage());
-            throw new RuntimeException("Failed to create course", e);
+            System.out.println(e.getMessage());
         }
     }
 
-    @Override
-    public List<Course> getAllCourses() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        try{
-            transaction.begin();
-            List<Course> courses = entityManager.createQuery("SELECT * from Course", Course.class).getResultList();
-            transaction.commit();
-            System.out.println("Course retrieved successfully");
-            return courses;
-        }catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            System.out.println("Error retrieving course: " + e.getMessage());
-            throw new RuntimeException("Failed to retrieve course", e);
-        }
-    }
 
-    @Override
     public Course getCourseById(int courseId) {
-        EntityTransaction transaction = entityManager.getTransaction();
-        try{
-            transaction.begin();
-            Course course = entityManager.find(Course.class, courseId);
+        Transaction transaction = null;
+        Course course = null;
+        try {
+            session = factory.openSession();
+            transaction = session.beginTransaction();
+            course = session.get(Course.class, courseId);
             transaction.commit();
-            System.out.println("Course retrieved successfully");
-            return course;
-        }catch (Exception e) {
-            if (transaction.isActive()) {
+
+        } catch (Exception e) {
+            if (transaction != null) {
                 transaction.rollback();
             }
-
-            System.out.println("Error retrieving course: " + e.getMessage());
-            throw new RuntimeException("Failed to retrieve course", e);
+            System.out.println(e.getMessage());
         }
+
+        return course;
     }
+
+    public List<Course> getAllCourses() {
+        Transaction transaction = null;
+        List<Course> courses = new ArrayList<>();
+        try {
+            session = factory.openSession();
+            transaction = session.beginTransaction();
+
+            String hql = "SELECT course FROM Course course";
+            TypedQuery<Course> query = session.createQuery(hql, Course.class);
+
+           courses = query.getResultList();
+            // Returning a list of courses
+            return courses;
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ArrayList<>();
+        }
+
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public Object getId() {
+        return null;
+    }
+
 }
