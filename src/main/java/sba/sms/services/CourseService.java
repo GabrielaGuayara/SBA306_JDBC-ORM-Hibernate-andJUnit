@@ -36,6 +36,8 @@ public class CourseService implements CourseI {
                 transaction.rollback();
             }
             System.out.println(e.getMessage());
+        }finally {
+            session.close();
         }
     }
 
@@ -54,6 +56,8 @@ public class CourseService implements CourseI {
                 transaction.rollback();
             }
             System.out.println(e.getMessage());
+        }finally {
+            session.close();
         }
 
         return course;
@@ -76,6 +80,8 @@ public class CourseService implements CourseI {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return new ArrayList<>();
+        }finally {
+            session.close();
         }
 
     }
