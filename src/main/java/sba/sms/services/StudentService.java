@@ -12,158 +12,119 @@ import sba.sms.models.Student;
 
 import java.util.List;
 
-/**
- * StudentService is a concrete class. This class implements the
- * StudentI interface, overrides all abstract service methods and
- * provides implementation for each method. Lombok @Log used to
- * generate a logger file.
- */
 
 public class StudentService implements StudentI {
 
-    SessionFactory factory = new Configuration().configure().buildSessionFactory();
-    Session session = null;
+    private static final SessionFactory factory = new Configuration().configure().buildSessionFactory();
 
-    public void createStudent(Student newStudent) {
+    @Override
+    public void createStudent(Student student) {
         Transaction transaction = null;
 
-        try {
-
-            //Opening session and beginning the transaction
-            session = factory.openSession();
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
-
-            session.persist(newStudent);
+            //Save student into the databases
+            session.persist(student);
             transaction.commit();
-
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
-                System.out.println(e.getMessage());
             }
             System.out.println(e.getMessage());
-        }finally {
-            session.close();
         }
     }
 
+    @Override
     public Student getStudentByEmail(String email) {
-
         Student student = null;
         Transaction transaction = null;
-        try {
 
-            session = factory.openSession();
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
             student = session.get(Student.class, email);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
-                System.out.println(e.getMessage());
             }
             System.out.println(e.getMessage());
-        }finally {
-            session.close();
         }
+        //Return the student by email
         return student;
     }
 
+    @Override
     public boolean validateStudent(String email, String password) {
-
         Transaction transaction = null;
 
-        try {
-            session = factory.openSession();
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
-
-
-            String hql = "FROM  Student WHERE email = :email AND password = :password";
+            String hql = "FROM Student WHERE email = :email AND password = :password";
             Query<Student> query = session.createQuery(hql, Student.class);
-
             query.setParameter("email", email);
             query.setParameter("password", password);
-            Student student = query.getSingleResult();
+            Student student = query.uniqueResult(); // Use uniqueResult() instead of getSingleResult()
             transaction.commit();
-
             return student != null;
-
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
-                System.out.println(e.getMessage());
             }
             System.out.println(e.getMessage());
-        }finally {
-            session.close();
         }
 
         return false;
-
     }
 
+    @Override
     public List<Student> getAllStudents() {
-        Transaction transaction = null;
-
-        try {
-            String hqlString = "SELECT Student from Students";
-            Query<Student> query = session.createQuery(hqlString, Student.class);
-            return query.getResultList();
+        try (Session session = factory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String hql = "FROM Student"; // Adjusted to correctly refer to the entity
+            Query<Student> query = session.createQuery(hql, Student.class);
+            List<Student> students = query.getResultList();
+            transaction.commit();
+            return students;
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-                System.out.println(e);
-            }
-            System.out.println(e);
-            return null;
+            System.out.println(e.getMessage());
         }
+        return null;
     }
 
+    @Override
     public List<Course> getStudentCourses(String email) {
-        Transaction transaction = null;
-        try {
-
-            transaction = session.beginTransaction();
-
-            //String to query all te courses for the students
+        try (Session session = factory.openSession()) {
+            Transaction transaction = session.beginTransaction();
             String hql = "SELECT course FROM Course course JOIN course.students student WHERE student.email = :email";
-
             Query<Course> query = session.createQuery(hql, Course.class);
             query.setParameter("email", email);
-            List<Course> StudentCourses = query.getResultList();
+            List<Course> studentCourses = query.getResultList();
             transaction.commit();
-            return StudentCourses;
-
+            return studentCourses;
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-                System.out.println(e.getMessage());
-            }
             System.out.println(e.getMessage());
-            return null;
         }
-
+        return null;
     }
 
+    @Override
     public void registerStudentToCourse(String email, int courseId) {
         Transaction transaction = null;
-        session = factory.openSession();
 
-        try {
+        try (Session session = factory.openSession()) {
             transaction = session.beginTransaction();
             Student student = session.get(Student.class, email);
             Course course = session.get(Course.class, courseId);
-            student.getCourses().add(course);
-            session.merge(student);
+            if (student != null && course != null) {
+                student.getCourses().add(course);
+                session.merge(student);
+            }
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
                 transaction.rollback();
             }
             System.out.println(e.getMessage());
-        }finally {
-            session.close();
         }
     }
-
 }
