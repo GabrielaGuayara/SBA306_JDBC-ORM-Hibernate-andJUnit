@@ -18,80 +18,63 @@ import java.util.List;
  */
 public class CourseService implements CourseI {
 
-    SessionFactory factory = new Configuration().configure().buildSessionFactory();
-    Session session = null;
+    private static final SessionFactory factory = new Configuration().configure().buildSessionFactory();
 
-    public void createCourse(Course course) {
-        Transaction transaction = null;
+        @Override
+        public void createCourse(Course course) {
+            Transaction transaction = null;
 
-        try {
-            session = factory.openSession();
-            transaction = session.beginTransaction();
-
-            // Utilize persist to save course in our database
-            session.persist(course);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
+            try (Session session = factory.openSession()) {
+                transaction = session.beginTransaction();
+                session.persist(course);
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                System.out.println(e.getMessage());
             }
-            System.out.println(e.getMessage());
-        }finally {
-            session.close();
-        }
-    }
-
-
-    public Course getCourseById(int courseId) {
-        Transaction transaction = null;
-        Course course = null;
-        try {
-            session = factory.openSession();
-            transaction = session.beginTransaction();
-            course = session.get(Course.class, courseId);
-            transaction.commit();
-
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            System.out.println(e.getMessage());
-        }finally {
-            session.close();
         }
 
-        return course;
-    }
+        @Override
+        public Course getCourseById(int courseId) {
+            Transaction transaction = null;
+            Course course = null;
 
-    public List<Course> getAllCourses() {
-        Transaction transaction = null;
-        List<Course> courses = new ArrayList<>();
-        try {
-            session = factory.openSession();
-            transaction = session.beginTransaction();
+            try (Session session = factory.openSession()) {
+                transaction = session.beginTransaction();
+                course = session.get(Course.class, courseId);
+                transaction.commit();
+            } catch (Exception e) {
+                if (transaction != null) {
+                    transaction.rollback();
+                }
+                System.out.println(e.getMessage());
+            }
 
-            String hql = "SELECT course FROM Course course";
-            TypedQuery<Course> query = session.createQuery(hql, Course.class);
+            return course;
+        }
 
-           courses = query.getResultList();
-            // Returning a list of courses
+        @Override
+        public List<Course> getAllCourses() {
+            List<Course> courses = new ArrayList<>();
+
+            try (Session session = factory.openSession()) {
+                Transaction transaction = session.beginTransaction();
+                String hql = "FROM Course";
+                TypedQuery<Course> query = session.createQuery(hql, Course.class);
+                courses = query.getResultList();
+                transaction.commit();
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
+
             return courses;
-
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return new ArrayList<>();
-        }finally {
-            session.close();
         }
 
+        @Override
+        public Object getId() {
+            return null;
+        }
     }
 
-    /**
-     * @return
-     */
-    @Override
-    public Object getId() {
-        return null;
-    }
-
-}
